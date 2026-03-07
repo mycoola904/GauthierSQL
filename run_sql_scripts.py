@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Execute .sql scripts in numeric filename order against MSSQL."
     )
-    parser.add_argument("--scripts-dir", default="sql", help="Directory containing .sql files")
+    parser.add_argument("--scripts-dir", default="sql\\build", help="Directory containing .sql files")
     parser.add_argument(
         "--env-file",
         default=".env",
