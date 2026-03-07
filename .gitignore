@@ -1,0 +1,41 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+
+# VS Code workspace settings
+.vscode/
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Build/distribution artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Excel outputs and temp Office files
+excel/
+*.xlsx
+*.xlsm
+*.xls
+*.tmp
+~$*.xlsx
+~$*.xlsm
+~$*.xls
