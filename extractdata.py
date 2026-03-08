@@ -6,6 +6,21 @@ import pandas as pd  # pip install pandas
 import sqlalchemy as sa  # pip install sqlalchemy
 from sqlalchemy.engine import URL
 
+"""
+This script connects to a SQL Server database using credentials from a .env file,
+extracts data, and saves it to an Excel file.
+The .env file should contain the following variables:
+- SQL_SERVER: The hostname or IP address of the SQL Server instance.
+- SQL_DATABASE: The name of the database to connect to.
+- SQL_USERNAME: The username for authentication.
+- SQL_PASSWORD: The password for authentication.
+- SQL_DRIVER (optional): The ODBC driver to use (default: "ODBC Driver 17 for SQL Server").
+- SQL_ENCRYPT (optional): Whether to encrypt the connection (default: "yes").
+- SQL_TRUST_SERVER_CERTIFICATE (optional): Whether to trust the server certificate (default: "no").
+- EXCEL_PATH (optional): The directory to save the Excel file (default: "output").
+- EXCEL_FILE_NAME (optional): The name of the Excel file (default: "extract.xlsx").
+- PROJECT_NAME (optional): A value to include in the extracted data (default: "Gauthier").
+"""
 
 def load_dotenv_file(path: Path) -> Dict[str, str]:
     values: Dict[str, str] = {}
