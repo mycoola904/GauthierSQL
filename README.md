@@ -30,6 +30,12 @@ pip install -r requirements.txt
 
 Create a `.env` file in the repo root.
 
+## Database Restore
+
+- A backup archive is provided at `ModMigration/ModMigration20260309.zip`.
+- Restore this backup into a database named `ModMigration` before running migration or review scripts.
+- This restored database includes required user-defined functions and views used by the target migration process.
+
 ## .env Example
 
 ```env
@@ -93,6 +99,52 @@ Output files are timestamped, for example:
 
 ```powershell
 python extractdata.py
+```
+
+## extractdata.py Query Documentation
+
+`extractdata.py` executes one query per mapped table using this exact SQL pattern:
+
+```sql
+SELECT *, :project_name AS Project, GETDATE() AS [Timestamp] FROM <table_name>
+```
+
+`<table_name>` values currently used by the script:
+
+- `T_MasterCustomers` -> sheet `MasterCustomers`
+- `T_Customers` -> sheet `Customers`
+- `T_CustomerLocations` -> sheet `CustomerLocations`
+- `T_Contacts` -> sheet `Contacts`
+- `T_ContactLocations` -> sheet `ContactLocations`
+- `T_CustomerServiceAgreementHeader` -> sheet `CustomerServiceAgreementHeader`
+- `T_CustomerServiceAgreementPrices` -> sheet `CustomerServiceAgreementPrices`
+- `T_SiteOrderHeader` -> sheet `SiteOrderHeader`
+- `T_SiteOrderItems` -> sheet `SiteOrderItems`
+- `T_SiteOrderRental` -> sheet `SiteOrderRental`
+- `T_SiteOrderAssignments` -> sheet `SiteOrderAssignments`
+- `T_Routing` -> sheet `Routing`
+- `T_Containers` -> sheet `Containers`
+- `T_CallLog` -> sheet `CallLog`
+- `T_AgedDebtorsData` -> sheet `AgedDebtorsData`
+
+Equivalent query examples (matching the script header documentation):
+
+```sql
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_MasterCustomers;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_Customers;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_CustomerLocations;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_Contacts;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_ContactLocations;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_CustomerServiceAgreementHeader;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_CustomerServiceAgreementPrices;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_SiteOrderHeader;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_SiteOrderItems;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_SiteOrderRental;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_SiteOrderAssignments;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_Routing;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_Containers;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_CallLog;
+SELECT *, '{project_name}' AS Project, GETDATE() AS [Timestamp] FROM T_AgedDebtorsData;
 ```
 
 ## Review SQL Format
