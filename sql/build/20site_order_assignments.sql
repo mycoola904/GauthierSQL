@@ -47,8 +47,7 @@ group by rs.STOPID, us.AutoID, rs.ROUTEID
 
 
 -- review missing assignments
-select DMAccount, ServiceCode, ServiceDescription
-from v_UnassignedServices
+
 
 -- COMPILE ASSIGNMENTS
 /*

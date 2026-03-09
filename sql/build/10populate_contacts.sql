@@ -187,7 +187,7 @@ left join Child ch on ch.id = ct.Child_id
 left join CustomerLocations cl on cl.UniqRef = case
 when a.c_id is null then cast(ch.C_ID  as varchar)
 else cast(a.C_ID  as varchar) end
-where ct.ContactType_id in (1, 3)
+where ct.ContactType_id in (1, 3) -- Operations/Service and Other Contacts
 
 
 insert into ContactLocations( ARAccountCode, SiteUniqueId, ContactUniqueId_id, Account_id, Child_id)
