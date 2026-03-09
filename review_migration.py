@@ -298,6 +298,74 @@ def write_markdown_summary(path: Path, generated_at: datetime, summary_rows: Lis
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def add_action_reports(
+    conn: sa.engine.Connection,
+    used_sheet_names: set[str],
+    summary_rows: List[Tuple[str, int]],
+    failed_batches: List[Tuple[str, str]],
+    writer: pd.ExcelWriter,
+) -> None:
+    """Add CustomerServiceAgreementPrices per-action detail sheets."""
+    action_values_sql = sa.text(
+        """
+        SELECT
+            DISTINCT [Action]
+        FROM ModMigration.dbo.CustomerServiceAgreementPrices
+        ORDER BY [Action]
+        """
+    )
+
+    action_details_sql = sa.text(
+        """
+        SELECT
+            DMAccount,
+            ServiceCode,
+            ServiceDescription,
+            [Action]
+        FROM ModMigration.dbo.CustomerServiceAgreementPrices
+        WHERE (
+            (:action_value IS NULL AND [Action] IS NULL)
+            OR [Action] = :action_value
+        )
+        ORDER BY DMAccount, ServiceCode, ServiceDescription
+        """
+    )
+
+    try:
+        action_values_df = pd.read_sql_query(action_values_sql, conn)
+    except Exception as ex:
+        error_text = str(ex)
+        failed_batches.append(("CSAP_ActionSheets", error_text))
+        print(f"  CSAP_ActionSheets: FAILED -> {error_text}")
+        return
+
+    if action_values_df.empty:
+        return
+
+    for action_value in action_values_df["Action"].tolist():
+        action_display = "NULL" if pd.isna(action_value) else str(action_value)
+        raw_sheet_name = f"CSAP_Action_{action_display}"
+        sheet_name = make_unique_sheet_name(raw_sheet_name, used_sheet_names)
+
+        try:
+            action_value_param = None if pd.isna(action_value) else str(action_value)
+            detail_df = pd.read_sql_query(
+                action_details_sql,
+                conn,
+                params={"action_value": action_value_param},
+            )
+            detail_df.to_excel(writer, sheet_name=sheet_name, index=False)
+            summary_rows.append((sheet_name, len(detail_df)))
+            print(f"  {sheet_name}: {len(detail_df)} rows")
+        except Exception as ex:
+            error_text = str(ex)
+            failed_batches.append((raw_sheet_name, error_text))
+            error_df = pd.DataFrame([{"Query": raw_sheet_name, "Error": error_text}])
+            error_df.to_excel(writer, sheet_name=sheet_name, index=False)
+            summary_rows.append((sheet_name, 0))
+            print(f"  {sheet_name}: FAILED -> {error_text}")
+
+
 def main() -> int:
     args = parse_args()
     resolve_connection_settings(args)
@@ -363,6 +431,14 @@ def main() -> int:
                     error_df.to_excel(writer, sheet_name=sheet_name, index=False)
                     summary_rows.append((sheet_name, 0))
                     print(f"  {sheet_name}: FAILED -> {error_text}")
+
+            add_action_reports(
+                conn=conn,
+                used_sheet_names=used_sheet_names,
+                summary_rows=summary_rows,
+                failed_batches=failed_batches,
+                writer=writer,
+            )
 
             run_info = pd.DataFrame(
                 [

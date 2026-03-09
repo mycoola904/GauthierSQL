@@ -105,3 +105,57 @@ INNER JOIN ConversionData.dbo.CUST AS cu
 WHERE targetAR.[TotalAR] <> ROUND(cu.C_CUR_BAL, 2)
 ORDER BY ABS(targetAR.[TotalAR] - ROUND(cu.C_CUR_BAL, 2)) DESC, cu.c_id_alpha;
 GO
+
+-- report: MissingServiceCodesInCode
+SELECT
+    cu.c_id AS C_ID,
+    cu.C_ID_ALPHA AS Account,
+    a.SVC_CODE,
+    st.Status
+FROM ConversionData.dbo.AUTO AS a
+LEFT JOIN ConversionData.dbo.CODE AS co
+    ON co.SVC_CODE = a.SVC_CODE
+INNER JOIN ConversionData.dbo.CUST AS cu
+    ON cu.c_id = a.C_ID
+INNER JOIN ModMigration.dbo.Status AS st
+    ON st.StatusID = cu.C_CSTAT
+WHERE co.SVC_CODE IS NULL
+ORDER BY cu.C_ID_ALPHA, a.SVC_CODE;
+GO
+
+-- report: ActiveAutoNotMappedToServiceCodeDetail
+SELECT
+    aa.ServiceCode,
+    aa.ServiceDescription
+FROM ActiveAuto AS aa
+INNER JOIN ConversionData.dbo.CODE AS cm
+    ON cm.SVC_CODE = aa.SVC_CODE
+INNER JOIN ConversionData.dbo.UDEF AS bc
+    ON bc.UNIQUE_ID = aa.BILLCYCLE
+INNER JOIN ConversionData.dbo.CUST AS cl
+    ON cl.c_id = aa.C_ID
+LEFT JOIN ConversionData.dbo.UDEF AS cta
+    ON cta.UNIQUE_ID = cl.B_TAXAREA
+LEFT JOIN ModMigration.dbo.ServiceCodeDetail AS sd
+    ON sd.[ServiceCode] = cm.SVC_CODE_ALPHA
+WHERE sd.id IS NULL
+ORDER BY aa.ServiceCode, aa.ServiceDescription;
+GO
+
+-- report: CSAPActionCounts
+SELECT
+    [Action],
+    COUNT_BIG(1) AS [RowCount]
+FROM ModMigration.dbo.CustomerServiceAgreementPrices
+GROUP BY [Action]
+ORDER BY [Action];
+GO
+
+-- report: UnassignedServices
+SELECT
+    DMAccount,
+    ServiceCode,
+    ServiceDescription
+FROM v_UnassignedServices
+ORDER BY DMAccount, ServiceCode, ServiceDescription;
+GO
