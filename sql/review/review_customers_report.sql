@@ -159,3 +159,38 @@ SELECT
 FROM v_UnassignedServices
 ORDER BY DMAccount, ServiceCode, ServiceDescription;
 GO
+
+-- report: ContainersNotMigrated
+SELECT
+    st.C_ID_ALPHA AS [DMAccount],
+    cv.ContainerType,
+    st.Description,
+    st.Status
+FROM ConversionData.dbo.CANG AS cg
+INNER JOIN ConversionData.dbo.CAND AS cd
+    ON cd.CONGRPUID = cg.CONGRPUID
+INNER JOIN Container_View AS cv
+    ON cv.CONTID = cg.CONTID
+INNER JOIN (
+    SELECT
+        cu.C_ID,
+        cu.C_ID_ALPHA,
+        st.Description,
+        st.Status
+    FROM ConversionData.dbo.CUST AS cu
+    INNER JOIN Status AS st
+        ON st.StatusID = cu.C_CSTAT
+    WHERE st.Description = 'ActiveAuto'
+) AS st
+    ON st.C_ID = cg.C_ID
+LEFT JOIN TempContainers AS tc
+    ON tc.CONGRPUID = cg.CONGRPUID
+WHERE tc.CONGRPUID IS NULL
+ORDER BY st.C_ID_ALPHA, cv.ContainerType;
+GO
+
+-- report: ReviewStatus
+-- sheet: ReviewStatus
+SELECT *
+FROM ModMigration.dbo.CustomerStatusMapping;
+GO

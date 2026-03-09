@@ -19,12 +19,14 @@ from sqlalchemy.engine import URL
 
 GO_PATTERN = re.compile(r"^\s*GO(?:\s+(\d+))?\s*(?:--.*)?$", re.IGNORECASE)
 REPORT_NAME_PATTERN = re.compile(r"^\s*--\s*report\s*:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
+SHEET_NAME_PATTERN = re.compile(r"^\s*--\s*sheet\s*:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
 
 
 @dataclass
 class QueryBatch:
     name: str
     sql: str
+    sheet_name: Optional[str] = None
 
 
 def parse_args() -> argparse.Namespace:
@@ -253,7 +255,9 @@ def parse_query_batches(sql_text: str) -> List[QueryBatch]:
     for index, batch in enumerate(split_batches(sql_text), start=1):
         name_match = REPORT_NAME_PATTERN.search(batch)
         name = name_match.group(1).strip() if name_match else f"Query{index:02d}"
-        parsed.append(QueryBatch(name=name, sql=batch))
+        sheet_name_match = SHEET_NAME_PATTERN.search(batch)
+        sheet_name = sheet_name_match.group(1).strip() if sheet_name_match else None
+        parsed.append(QueryBatch(name=name, sql=batch, sheet_name=sheet_name))
 
     return parsed
 
@@ -411,7 +415,8 @@ def main() -> int:
     try:
         with engine.connect() as conn, pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
             for batch in batches:
-                sheet_name = make_unique_sheet_name(batch.name, used_sheet_names)
+                preferred_sheet_name = batch.sheet_name or batch.name
+                sheet_name = make_unique_sheet_name(preferred_sheet_name, used_sheet_names)
                 try:
                     df = pd.read_sql_query(sa.text(batch.sql), conn)
                     df.to_excel(writer, sheet_name=sheet_name, index=False)
