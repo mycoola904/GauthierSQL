@@ -20,6 +20,55 @@ The .env file should contain the following variables:
 - EXCEL_PATH (optional): The directory to save the Excel file (default: "output").
 - EXCEL_FILE_NAME (optional): The name of the Excel file (default: "extract.xlsx").
 - PROJECT_NAME (optional): A value to include in the extracted data (default: "Gauthier").
+
+Queries that are executed:
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_MasterCustomers,
+        MasterCustomers,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_Customers,
+        Customers,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_CustomerLocations,
+        CustomerLocations,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_Contacts,
+        Contacts,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_ContactLocations,
+        ContactLocations,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_CustomerServiceAgreementHeader,
+        CustomerServiceAgreementHeader,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_CustomerServiceAgreementPrices,
+        CustomerServiceAgreementPrices,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_SiteOrderHeader,
+        SiteOrderHeader,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_SiteOrderItems,
+        SiteOrderItems,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_SiteOrderRental,
+        SiteOrderRental,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_SiteOrderAssignments,
+        SiteOrderAssignments,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_Routing,
+        Routing,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_Containers,
+        Containers,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_CallLog,
+        CallLog,
+		
+        select *, '{project_name}' as Project, getdate() as Timestamp from T_AgedDebtorsData,
+        AgedDebtorsData,
+
+
+
 """
 
 def load_dotenv_file(path: Path) -> Dict[str, str]:
